@@ -2,32 +2,33 @@ version: '2.1'
 services:
     redis:
         image: 'redis:3.2.7'
-        # command: redis-server --requirepass redispass
+        command: redis-server --requirepass redispass
 
-    postgres:
-        image: postgres:9.6
-        environment:
-            - POSTGRES_USER=airflow
-            - POSTGRES_PASSWORD=airflow
-            - POSTGRES_DB=airflow
+#    postgres:
+#        image: postgres:9.6
+#        environment:
+#            - POSTGRES_USER=airflow
+#            - POSTGRES_PASSWORD=airflow
+#            - POSTGRES_DB=airflow
         # Uncomment these lines to persist data on the local filesystem.
         #     - PGDATA=/var/lib/postgresql/data/pgdata
         # volumes:
         #     - ./pgdata:/var/lib/postgresql/data/pgdata
 
     webserver:
-        image: puckel/docker-airflow:1.9.0-4
+        image: puckel/docker-airflow:latest
         restart: always
         depends_on:
-            - postgres
+#            - postgres
             - redis
         environment:
             - LOAD_EX=n
             - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
             - EXECUTOR=Celery
-            # - POSTGRES_USER=airflow
-            # - POSTGRES_PASSWORD=airflow
-            # - POSTGRES_DB=airflow
+            - MYSQL_HOST=auroraexperimentaurorast-auroraexperimentauroracl-4ln270euhebn.cluster-ccujm7lqwt2f.eu-west-1.rds.amazonaws.com
+            - MYSQL_USER=lmlt
+            - MYSQL_PASSWORD=potatoes!
+            - MYSQL_DB=airflow
             # - REDIS_PASSWORD=redispass
         volumes:
             - ./dags:/usr/local/airflow/dags
@@ -43,7 +44,7 @@ services:
             retries: 3
 
     flower:
-        image: puckel/docker-airflow:1.9.0-4
+        image: puckel/docker-airflow:latest
         restart: always
         depends_on:
             - redis
@@ -55,7 +56,7 @@ services:
         command: flower
 
     scheduler:
-        image: puckel/docker-airflow:1.9.0-4
+        image: puckel/docker-airflow:latest
         restart: always
         depends_on:
             - webserver
@@ -64,17 +65,18 @@ services:
             # Uncomment to include custom plugins
             # - ./plugins:/usr/local/airflow/plugins
         environment:
-            - LOAD_EX=n
+            - LOAD_EX=y
             - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
             - EXECUTOR=Celery
-            # - POSTGRES_USER=airflow
-            # - POSTGRES_PASSWORD=airflow
-            # - POSTGRES_DB=airflow
+            - MYSQL_HOST=auroraexperimentaurorast-auroraexperimentauroracl-4ln270euhebn.cluster-ccujm7lqwt2f.eu-west-1.rds.amazonaws.com
+            - MYSQL_USER=lmlt
+            - MYSQL_PASSWORD=potatoes!
+            - MYSQL_DB=airflow
             # - REDIS_PASSWORD=redispass
         command: scheduler
 
     worker:
-        image: puckel/docker-airflow:1.9.0-4
+        image: puckel/docker-airflow:latest
         restart: always
         depends_on:
             - scheduler
@@ -85,8 +87,9 @@ services:
         environment:
             - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
             - EXECUTOR=Celery
-            # - POSTGRES_USER=airflow
-            # - POSTGRES_PASSWORD=airflow
-            # - POSTGRES_DB=airflow
+            - MYSQL_HOST=auroraexperimentaurorast-auroraexperimentauroracl-4ln270euhebn.cluster-ccujm7lqwt2f.eu-west-1.rds.amazonaws.com
+            - MYSQL_USER=lmlt
+            - MYSQL_PASSWORD=potatoes!
+            - MYSQL_DB=airflow
             # - REDIS_PASSWORD=redispass
         command: worker
